@@ -47,7 +47,7 @@ public class InscricaoResource {
     @POST
     public Response cadastrarInscricao(Inscricao inscricao) {
         inscricao.setStatus("Pendente");
-        
+        inscricao.setDescricao("");
         inscricoes.add(inscricao);
         emitter.send(inscricao);
 
