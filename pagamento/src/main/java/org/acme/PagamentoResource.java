@@ -20,10 +20,8 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import main.java.org.acme.Inscricao;
-import main.java.org.acme.Pagamento;
 
 @Path("/pagamento")
 @Produces(MediaType.APPLICATION_JSON)
@@ -48,6 +46,18 @@ public class PagamentoResource {
         logger.info("Atualizando inscrição: [{}]", inscricao);
     }
 
+    @Incoming("pagamento-atualizado")
+    public void atualizarPagamento(Pagamento pagamento) {
+        logger.info("Atualizando pagamento: [{}]", pagamento);
+        pagamentos.stream() //
+        .filter(p-> p.getId().equals(pagamento.getId()))
+        .findAny()
+        .ifPresent(p -> {
+            p.setDescricao(pagamento.getDescricao());
+            p.setStatus(pagamento.getStatus());
+        });
+    }
+
     @POST
     @Path("/pagarComSucesso/{id}")
     public Response pagarComSucesso(@PathParam("id") Integer id) {
@@ -57,11 +67,18 @@ public class PagamentoResource {
         if (inscricaoOptional.isPresent()) {
             Inscricao inscricao = inscricaoOptional.get();
             inscricao.setDescricao("");
-            inscricao.setStatus("Pagamento Realizado");
+            inscricao.setStatus("PAGAMENTO_REALIZADO");
             inscricoes.add(inscricao);
 
             emitterAtualizacao.send(inscricao);
-            emitterPagamento.send(inscricao);
+
+            Pagamento pagamento = new Pagamento();
+            pagamento.setInscricao(inscricao);
+            pagamento.setStatus("PAGAMENTO_REALIZADO");
+            pagamento.setDescricao("");
+
+            pagamentos.add(pagamento);
+            emitterPagamento.send(pagamento);
             return Response.ok(inscricao).build();
         }
         return Response.status(Status.NOT_FOUND).build();
@@ -76,11 +93,18 @@ public class PagamentoResource {
         if (inscricaoOptional.isPresent()) {
             Inscricao inscricao = inscricaoOptional.get();
             inscricao.setDescricao(descricao);
-            inscricao.setStatus("Cancelada");
+            inscricao.setStatus("CANCELADA");
             inscricoes.add(inscricao);
 
             emitterAtualizacao.send(inscricao);
-            emitterPagamento.send(inscricao);
+
+            Pagamento pagamento = new Pagamento();
+            pagamento.setInscricao(inscricao);
+            pagamento.setStatus("PAGAMENTO_CANCELADO");
+            pagamento.setDescricao(descricao);
+
+            pagamentos.add(pagamento);
+
             return Response.ok(inscricao).build();
         }
         return Response.status(Status.NOT_FOUND).build();
@@ -88,6 +112,13 @@ public class PagamentoResource {
 
     @GET
     public Response pegarTodos() {
+        logger.info("Recuperando todos os pagamentos. Tamanho da lista [{}]", pagamentos.size());
+        return Response.ok(pagamentos).build();
+    }
+
+    @Path("/inscricao")
+    @GET
+    public Response pegarInscricao() {
         logger.info("Recuperando todas as inscrições. Tamanho da lista [{}]", inscricoes.size());
         return Response.ok(inscricoes).build();
     }
@@ -95,11 +126,11 @@ public class PagamentoResource {
     @Path("{id}")
     @GET
     public Response pegar(@PathParam("id") Integer id) {
-        logger.info("Recuperando inscrição com ID: [{}]", id);
-        Optional<Inscricao> inscricao = inscricoes.stream().filter(i -> i.getId().equals(id)).findAny();
-        logger.info("Inscrição recuperada [{}]", inscricao);
-        if (inscricao.isPresent()) {
-            return Response.ok(inscricao.get()).build();
+        logger.info("Recuperando pagamento com ID: [{}]", id);
+        Optional<Pagamento> pagamento = pagamentos.stream().filter(i -> i.getId().equals(id)).findAny();
+        logger.info("Pagamento recuperado [{}]", pagamento);
+        if (pagamento.isPresent()) {
+            return Response.ok(pagamento.get()).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }

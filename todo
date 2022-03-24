@@ -1,7 +1,9 @@
-[] Fazer serviço de pagamento
-[] Fazer serviço de emissão
+[x] Fazer serviço de pagamento
+[x] Fazer serviço de emissão
 [x] Fazer serviço de inscrição
-[] Fazer serviço de acesso
-[] Fazer serviço de logs
+[x] Fazer serviço de acesso
+[x] Fazer serviço de logs
 [] Fazer script que inicializa tudo e printa na tela o log do serviço de logs
 [] Escrever o README.md
+[] Testar
+[] Criar scripts de inscrição, pagamento, emissão de nota e atualização
