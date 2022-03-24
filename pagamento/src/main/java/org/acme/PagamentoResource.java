@@ -42,8 +42,9 @@ public class PagamentoResource {
 
     @Incoming("inscricao-realizada")
     public void atualizarInscricao(Inscricao inscricao) {
+        inscricoes.remove(inscricao);
         inscricoes.add(inscricao);
-        logger.info("Atualizando inscrição: [{}]", inscricao);
+        logger.info("Inscrição cadastrada: [{}]", inscricao);
     }
 
     @Incoming("pagamento-atualizado")
@@ -55,6 +56,8 @@ public class PagamentoResource {
         .ifPresent(p -> {
             p.setDescricao(pagamento.getDescricao());
             p.setStatus(pagamento.getStatus());
+            p.getInscricao().setDescricao(pagamento.getInscricao().getDescricao());
+            p.getInscricao().setStatus(pagamento.getInscricao().getStatus());
         });
     }
 
@@ -75,11 +78,12 @@ public class PagamentoResource {
             Pagamento pagamento = new Pagamento();
             pagamento.setInscricao(inscricao);
             pagamento.setStatus("PAGAMENTO_REALIZADO");
+            pagamento.setId(Pagamento.counter);
             pagamento.setDescricao("");
 
             pagamentos.add(pagamento);
             emitterPagamento.send(pagamento);
-            return Response.ok(inscricao).build();
+            return Response.ok(pagamento).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }
@@ -105,7 +109,7 @@ public class PagamentoResource {
 
             pagamentos.add(pagamento);
 
-            return Response.ok(inscricao).build();
+            return Response.ok(pagamento).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }

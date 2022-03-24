@@ -26,38 +26,31 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class LogConsumer {
-    static Set<Pagamento> pagamentos = new HashSet<>();
-
     private static final Logger logger = LoggerFactory.getLogger(LogConsumer.class);
 
     @Incoming("pagamento-realizado")
     public void pagamentoRealizado(Pagamento pagamento) {
-        pagamentos.add(pagamento);
         logger.info("Pagamento realizado: [{}]", pagamento);
     }
 
     @Incoming("emissao-realizada")
     public void emissaoRealizada(Pagamento pagamento) {
-        pagamentos.add(pagamento);
         logger.info("Emissão realizada: [{}]", pagamento);
     }
 
     @Incoming("pagamento-atualizado")
     public void pagamentoAtualizado(Pagamento pagamento) {
-        pagamentos.add(pagamento);
         logger.info("Pagamento atualizado: [{}]", pagamento);
     }
 
     //
     @Incoming("inscricao-realizada")
-    public void inscricaoRealizada(Pagamento pagamento) {
-        pagamentos.add(pagamento);
-        logger.info("Inscrição realizada: [{}]", pagamento);
+    public void inscricaoRealizada(Inscricao inscricao) {
+        logger.info("Inscrição realizada: [{}]", inscricao);
     }
 
     @Incoming("inscricao-atualizada")
-    public void inscricaoAtualizada(Pagamento pagamento) {
-        pagamentos.add(pagamento);
-        logger.info("Inscrição atualizada: [{}]", pagamento);
+    public void inscricaoAtualizada(Inscricao inscricao) {
+        logger.info("Inscrição atualizada: [{}]", inscricao);
     }
 }

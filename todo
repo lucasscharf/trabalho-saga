@@ -3,7 +3,7 @@
 [x] Fazer serviço de inscrição
 [x] Fazer serviço de acesso
 [x] Fazer serviço de logs
-[] Fazer script que inicializa tudo e printa na tela o log do serviço de logs
-[] Escrever o README.md
-[] Testar
+[x] Fazer script que inicializa tudo e printa na tela o log do serviço de logs
+[x] Escrever o README.md
+[x] Testar
 [] Criar scripts de inscrição, pagamento, emissão de nota e atualização

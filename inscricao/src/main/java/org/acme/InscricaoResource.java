@@ -40,19 +40,21 @@ public class InscricaoResource {
 
     @Incoming("inscricao-atualizada")
     public void atualizarInscricao(Inscricao inscricao) {
+        inscricoes.remove(inscricao);
         inscricoes.add(inscricao);
         logger.info("Atualizando inscrição: [{}]", inscricao);
     }
 
     @POST
     public Response cadastrarInscricao(Inscricao inscricao) {
-        inscricao.setStatus("Pendente");
+        inscricao.setStatus("PENDENTE");
         inscricao.setDescricao("");
+        inscricao.setId(Inscricao.counter);
         inscricoes.add(inscricao);
         emitter.send(inscricao);
 
         logger.info("Cadastrando inscrição: [{}]", inscricao);
-        return Response.ok().build();
+        return Response.ok(inscricao).build();
     }
 
     @GET

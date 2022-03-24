@@ -45,6 +45,7 @@ public class EmissaoResource {
 
     @Incoming("pagamento-realizado")
     public void atualizarInscricao(Pagamento pagamento) {
+        pagamentos.remove(pagamento);
         pagamentos.add(pagamento);
         logger.info("Atualizando pagamento: [{}]", pagamento);
     }
@@ -75,7 +76,7 @@ public class EmissaoResource {
     }
 
     @POST
-    @Path("/emitorComFalha/{id}")
+    @Path("/emitirComFalha/{id}")
     public Response pagarComFalha(@PathParam("id") Integer id, String descricao) {
         logger.info("Recuperando pagamento com ID: [{}]", id);
         Optional<Pagamento> pagamentoOptional = pagamentos.stream().filter(i -> i.getId().equals(id)).findAny();
@@ -85,14 +86,15 @@ public class EmissaoResource {
             pagamento.setStatus("PAGAMENTO_CANCELADO");
             pagamento.setDescricao(descricao);
 
-            emitterPagamentoAtualizado.send(pagamento);
-
-            pagamentos.add(pagamento);
-
-            Inscricao inscricao = pagamento.getInscricao();
+            Inscricao inscricao = pagamentoOptional.get().getInscricao();
             inscricao.setDescricao("Problemas na emissão de nota");
             inscricao.setStatus("INSCRICAO_CANCELADA");
+
+            pagamentos.remove(pagamento);
+            pagamentos.add(pagamento);
+
             emitterInscricaoAtualizada.send(inscricao);
+            emitterPagamentoAtualizado.send(pagamento);
 
             return Response.ok(inscricao).build();
         }
@@ -102,13 +104,6 @@ public class EmissaoResource {
     @GET
     public Response pegarTodos() {
         logger.info("Recuperando todos os pagamentos. Tamanho da lista [{}]", pagamentos.size());
-        return Response.ok(pagamentos).build();
-    }
-
-    @Path("/inscricao")
-    @GET
-    public Response pegarInscricao() {
-        logger.info("Recuperando todas as inscrições. Tamanho da lista [{}]", pagamentos.size());
         return Response.ok(pagamentos).build();
     }
 
